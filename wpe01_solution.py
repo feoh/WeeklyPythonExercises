@@ -19,9 +19,8 @@ def display_places():
     print("You visited:")
     for country in sorted(visits.keys()):
         print(f"{country}:")
-        cities_counter = Counter(visits[country])
-        for city in sorted(cities_counter.keys()):
-            print(f"\t{city} ({cities_counter[city]})")
+        for city in sorted(visits[country]):
+            print(f"\t{city} ({visits[country][city]})")
 
 
 if __name__ == "__main__":

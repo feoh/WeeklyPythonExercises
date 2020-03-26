@@ -16,7 +16,7 @@ Barcelona, Spain
 def test_no_places(monkeypatch):
     monkeypatch.setattr('sys.stdin', empty_place_inputs)
     wpe01_solution.collect_places()
-    assert len(wpe01_solution.visits) == 1
+    assert len(wpe01_solution.visits) == 0
 
 def test_one_place(monkeypatch):
     monkeypatch.setattr('sys.stdin', one_place_input)

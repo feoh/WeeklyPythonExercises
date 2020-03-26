@@ -10,13 +10,15 @@ def collect_places():
             break
         try:
             (city, country) = city_country.split(', ')
+            visits[country.strip()][city.strip()] += 1
         except ValueError:
             print("That's not a legal city, country combination")
             continue
-        visits[country][city] += 1
+
 
 def display_places():
-    print("You visited:")
+    if visits:
+        print("You visited:")
     for country in sorted(visits.keys()):
         print(f"{country}:")
         for city in sorted(visits[country]):

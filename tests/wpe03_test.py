@@ -98,4 +98,3 @@ def test_re_check_values(mini_mini_file):
     assert first_log_dict['ip_address'] == '67.218.116.165'
     assert first_log_dict['timestamp'] == '30/Jan/2010:00:03:18 +0200'
     assert first_log_dict['request'] == 'GET /robots.txt HTTP/1.0'
-

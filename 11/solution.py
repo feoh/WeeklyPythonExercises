@@ -1,25 +1,20 @@
-from io import IOBase
+from hashlib import md5
+import os.path
 
 
-class Tee:
+class DirFileHash:
+    def __init__(self, dir_name):
+        if not os.path.dirname(dir_name):
+            raise ValueError
 
-    def __init__(self, fh1: IOBase, fh2: IOBase = None):
-        self.file_handles = []
-        self.file_handles.append(fh1)
+        self.dirname = dir_name
 
-        if fh2:
-            self.file_handles.append(fh2)
+    def __getitem__(self, item):
+        file_path = os.path.join(self.dirname, item)
+        if not os.path.isfile(file_path):
+            return None
 
-    def write(self, string):
-        for fh in self.file_handles:
-            fh.write(string)
-
-    def writelines(self, lines):
-        self.write("".join(lines))
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        for fh in self.file_handles:
-            fh.close()
+        with open(file_path) as file_contents:
+            contents = file_contents.read().encode()
+            md5_contents = md5(contents)
+            return md5_contents.hexdigest()

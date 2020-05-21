@@ -1,56 +1,37 @@
-import solution
+from solution import DirFileHash
+from hashlib import md5
 import pytest
 import string
-from io import StringIO
+import os
 
 @pytest.fixture
-def some_text():
-    return string.ascii_lowercase + '\n'
+def dir_with_files(tmp_path):
+    d = tmp_path
 
-def test_write_1(some_text):
-    outfile = StringIO()
-    t = solution.Tee(outfile)
-    t.write(some_text)
+    with open(d / 'ascii_lowercase', 'w') as f:
+        f.write(string.ascii_lowercase)
 
-    outfile.seek(0)
-    assert(outfile.read() == some_text)
+    with open(d / 'ascii_uppercase', 'w') as f:
+        f.write(string.ascii_uppercase)
 
-def test_write_2(some_text):
-    outfile1 = StringIO()
-    outfile2 = StringIO()
+    return d
 
-    t = solution.Tee(outfile1, outfile2)
-    t.write(some_text)
+def test_hasattr_dirname():
+    bad_name = '/garbage/name'
+    dfh = DirFileHash(bad_name)
+    assert dfh.dirname == bad_name
 
-    for output in [outfile1, outfile2]:
-        output.seek(0)
-        assert(output.read() == some_text)
+def test_bad_dirname():
+    bad_dirname = '/garbage/dirname'
+    dfh = DirFileHash(bad_dirname)
+    assert dfh['abc.txt'] is None
+    assert dfh[''] is None
 
-def test_writelines(some_text):
-    outfile1 = StringIO()
-    outfile2 = StringIO()
+def test_all_in_dir(dir_with_files):
+    dfh = DirFileHash(dir_with_files)
 
-    t = solution.Tee(outfile1, outfile2)
-    t.writelines([some_text, some_text])
-
-    for output in [outfile1, outfile2]:
-        output.seek(0)
-        assert(output.read() == ''.join([some_text] * 2))
-
-def test_with(some_text):
-    outfile = StringIO()
-
-    with solution.Tee(outfile) as t:
-        t.write(some_text)
-
-    assert outfile.closed
-
-def test_with_check_output(some_text, tmp_path):
-    f = tmp_path / 'outfile.txt'
-    outfile = open(f, 'w')
-
-    with solution.Tee(outfile) as t:
-        t.write(some_text)
-
-    assert outfile.closed
-    assert open(f).read() == some_text
+    for one_filename in os.listdir(dir_with_files):
+        m = md5()
+        content = getattr(string, one_filename).encode()
+        m.update(content)
+        assert dfh[one_filename] == m.hexdigest()
